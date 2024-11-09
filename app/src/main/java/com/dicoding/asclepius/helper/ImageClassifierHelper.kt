@@ -31,6 +31,7 @@ class ImageClassifierHelper(
     }
 
     private fun setupImageClassifier() {
+
         val optionsBuilder = ImageClassifier.ImageClassifierOptions.builder()
             .setScoreThreshold(threshold)
             .setMaxResults(maxResults)
