@@ -3,6 +3,7 @@ package com.dicoding.asclepius.view
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.icu.text.DecimalFormat
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -67,7 +68,7 @@ class MainActivity : AppCompatActivity(), ClassifierListener {
         results?.let {
             val topResult = it.firstOrNull()?.categories?.firstOrNull()
             topResult?.let { category ->
-                val confidence = category.score * 100
+                val confidence = DecimalFormat("#.00").format(category.score * 100)
                 moveToResult(category.label.toString(), confidence.toString())
             }
         }
@@ -77,6 +78,9 @@ class MainActivity : AppCompatActivity(), ClassifierListener {
         val intent = Intent(this, ResultActivity::class.java)
         intent.putExtra("PREDICTION", prediction)
         intent.putExtra("CONFIDENCE", confidence)
+        currentImageUri?.let { uri ->
+            intent.putExtra("IMAGE_URI", uri.toString())
+        }
         startActivity(intent)
     }
 

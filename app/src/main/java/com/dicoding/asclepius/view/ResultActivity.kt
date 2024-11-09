@@ -17,15 +17,14 @@ class ResultActivity : AppCompatActivity() {
     }
 
     private fun displayResult() {
-        val imageUri = intent.getParcelableExtra<Uri>("IMAGE_URI")
+        val imageUriString = intent.getStringExtra("IMAGE_URI")
         val prediction = intent.getStringExtra("PREDICTION")
         val confidence = intent.getStringExtra("CONFIDENCE")
 
-        imageUri?.let {
-            binding.resultImage.setImageURI(it)
-        }
+        val imageUri = Uri.parse(imageUriString)
 
         val resultText = "$prediction ${confidence}%"
+        binding.resultImage.setImageURI(imageUri)
         binding.resultText.text = resultText
     }
 }
