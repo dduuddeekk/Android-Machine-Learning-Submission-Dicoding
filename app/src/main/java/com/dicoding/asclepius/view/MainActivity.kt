@@ -1,6 +1,5 @@
 package com.dicoding.asclepius.view
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.icu.text.DecimalFormat
@@ -10,7 +9,6 @@ import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.dicoding.asclepius.R
 import com.dicoding.asclepius.databinding.ActivityMainBinding
 import com.dicoding.asclepius.helper.ImageClassifierHelper
 import com.dicoding.asclepius.helper.ImageClassifierHelper.ClassifierListener

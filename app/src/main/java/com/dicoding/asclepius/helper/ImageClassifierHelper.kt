@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
-import androidx.camera.core.ImageProxy
 import com.dicoding.asclepius.R
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.image.ImageProcessor
