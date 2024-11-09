@@ -9,14 +9,17 @@ import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.dicoding.asclepius.databinding.ActivityMainBinding
 import com.dicoding.asclepius.helper.ImageClassifierHelper
 import com.dicoding.asclepius.helper.ImageClassifierHelper.ClassifierListener
+import com.dicoding.asclepius.model.MainViewModel
 import org.tensorflow.lite.task.vision.classifier.Classifications
 
 class MainActivity : AppCompatActivity(), ClassifierListener {
     private lateinit var binding: ActivityMainBinding
     private var currentImageUri: Uri? = null
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var imageClassifierHelper: ImageClassifierHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,7 +27,13 @@ class MainActivity : AppCompatActivity(), ClassifierListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
         imageClassifierHelper = ImageClassifierHelper(context = this, classifierListener = this)
+
+        mainViewModel.currentImageUri?.let { uri ->
+            showImage(uri)
+        }
 
         binding.apply {
             galleryButton.setOnClickListener { startGallery() }
@@ -35,7 +44,7 @@ class MainActivity : AppCompatActivity(), ClassifierListener {
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             currentImageUri = result.data?.data
-            showImage()
+            showImage(mainViewModel.currentImageUri)
         } else {
             showToast("Failed to pick image.")
         }
@@ -46,8 +55,8 @@ class MainActivity : AppCompatActivity(), ClassifierListener {
         galleryLauncher.launch(intent)
     }
 
-    private fun showImage() {
-        currentImageUri?.let { uri ->
+    private fun showImage(uri: Uri?) {
+        uri?.let {
             binding.previewImageView.setImageURI(uri)
         }
     }
