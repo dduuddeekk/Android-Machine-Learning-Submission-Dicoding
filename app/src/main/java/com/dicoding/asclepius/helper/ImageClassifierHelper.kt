@@ -41,7 +41,7 @@ class ImageClassifierHelper(
         try {
             imageClassifier = ImageClassifier.createFromFileAndOptions(
                 context,
-                model,  // gunakan model sebagai string
+                model,
                 optionsBuilder.build()
             )
         } catch (e: IOException) {
@@ -83,21 +83,6 @@ class ImageClassifierHelper(
             Log.e(TAG, "Error converting URI to Bitmap: ${e.message}")
             null
         }
-    }
-
-    fun classifyImageProxy(image: ImageProxy) {
-        val bitmap = toBitmap(image)
-        classifyStaticImage(Uri.parse(bitmap.toString()))  // Pastikan untuk menggunakan URI dengan benar
-    }
-
-    private fun toBitmap(image: ImageProxy): Bitmap {
-        val bitmapBuffer = Bitmap.createBitmap(
-            image.width,
-            image.height,
-            Bitmap.Config.ARGB_8888
-        )
-        image.use { bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer) }
-        return bitmapBuffer
     }
 
     interface ClassifierListener {
