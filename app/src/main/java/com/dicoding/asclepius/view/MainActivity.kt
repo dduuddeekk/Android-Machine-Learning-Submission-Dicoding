@@ -18,7 +18,6 @@ import org.tensorflow.lite.task.vision.classifier.Classifications
 
 class MainActivity : AppCompatActivity(), ClassifierListener {
     private lateinit var binding: ActivityMainBinding
-    private var currentImageUri: Uri? = null
     private lateinit var mainViewModel: MainViewModel
     private lateinit var imageClassifierHelper: ImageClassifierHelper
 
@@ -27,11 +26,10 @@ class MainActivity : AppCompatActivity(), ClassifierListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-
+        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
         imageClassifierHelper = ImageClassifierHelper(context = this, classifierListener = this)
 
-        mainViewModel.currentImageUri?.let { uri ->
+        mainViewModel.currentImageUri.observe(this) { uri ->
             showImage(uri)
         }
 
@@ -43,10 +41,14 @@ class MainActivity : AppCompatActivity(), ClassifierListener {
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            currentImageUri = result.data?.data
-            showImage(mainViewModel.currentImageUri)
+            val uri = result.data?.data
+            if (uri != null) {
+                mainViewModel.setImageUri(uri)
+            } else {
+                showToast("Failed to pick image.")
+            }
         } else {
-            showToast("Failed to pick image.")
+            showToast("Image selection cancelled.")
         }
     }
 
@@ -57,12 +59,12 @@ class MainActivity : AppCompatActivity(), ClassifierListener {
 
     private fun showImage(uri: Uri?) {
         uri?.let {
-            binding.previewImageView.setImageURI(uri)
+            binding.previewImageView.setImageURI(it)
         }
     }
 
     private fun analyzeImage() {
-        currentImageUri?.let { uri ->
+        mainViewModel.currentImageUri.value?.let { uri ->
             imageClassifierHelper.classifyStaticImage(uri)
         } ?: showToast("Please select an image first.")
     }
@@ -76,7 +78,8 @@ class MainActivity : AppCompatActivity(), ClassifierListener {
             val topResult = it.firstOrNull()?.categories?.firstOrNull()
             topResult?.let { category ->
                 val confidence = DecimalFormat("#.00").format(category.score * 100)
-                moveToResult(category.label.toString(), confidence.toString())
+                mainViewModel.setPrediction(category.label, confidence.toString())
+                moveToResult(category.label, confidence)
             }
         }
     }
@@ -85,7 +88,7 @@ class MainActivity : AppCompatActivity(), ClassifierListener {
         val intent = Intent(this, ResultActivity::class.java)
         intent.putExtra("PREDICTION", prediction)
         intent.putExtra("CONFIDENCE", confidence)
-        currentImageUri?.let { uri ->
+        mainViewModel.currentImageUri.value?.let { uri ->
             intent.putExtra("IMAGE_URI", uri.toString())
         }
         startActivity(intent)
